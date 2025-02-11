@@ -11,7 +11,6 @@ export default function Checkout() {
     try {
       const { url, token } = await startWebpayTransaction(10000, 'orden-123');
 
-      // Redirigir vía formulario
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = url;

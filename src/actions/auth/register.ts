@@ -1,35 +1,43 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { hash } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
+import { signIn } from 'next-auth/react';
 
 export async function registerUser(
   email: string,
   password: string,
-  name?: string
+  name: string
 ) {
-  // Validaciones básicas
-  if (!email || !password) {
-    throw new Error('El correo y la contraseña son obligatorios');
-  }
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
 
-  // Verificar si el usuario ya existe
-  const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) {
-    throw new Error('El usuario ya existe');
-  }
+  if (existingUser) throw new Error('El usuario ya existe');
 
-  // Hashear la contraseña
-  const hashedPassword = await hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Crear el usuario en la DB
-  const newUser = await prisma.user.create({
+  return prisma.user.create({
     data: {
       email,
       name,
       password: hashedPassword,
     },
   });
+}
 
-  return newUser;
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    await signIn('credentials', {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      redirect: false,
+    });
+  } catch (error) {
+    console.log(error);
+    return 'Credenciales inválidas';
+  }
 }

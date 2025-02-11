@@ -1,58 +1,55 @@
 import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import prisma from '@/lib/prisma';
-import { compare } from 'bcryptjs';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { PrismaClient } from '@prisma/client';
+import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
 
-export const authOptions = {
+const prisma = new PrismaClient();
+
+const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    // Proveedor para autenticación local (credenciales)
-    CredentialsProvider({
-      name: 'Credenciales',
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    Credentials({
+      name: 'Credentials',
       credentials: {
-        email: {
-          label: 'Correo',
-          type: 'email',
-          placeholder: 'ejemplo@correo.com',
-        },
-        password: { label: 'Contraseña', type: 'password' },
+        email: { label: 'Email', type: 'text', placeholder: 'jsmith' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials) return null;
-        const { email, password } = credentials;
-
-        // Buscar el usuario en la base de datos
         const user = await prisma.user.findUnique({
-          where: { email },
+          where: { email: credentials?.email as string },
         });
+
         if (!user || !user.password) return null;
 
-        // Validar la contraseña (suponiendo que la contraseña está hasheada)
-        const isValid = await compare(password, user.password);
-        if (!isValid) return null;
-
-        // Retorna el objeto usuario (NextAuth lo serializa)
-        return user;
+        const isValid = await bcrypt.compare(
+          credentials?.password as string,
+          user.password
+        );
+        console.log('exito');
+        return isValid ? user : null;
       },
     }),
-    // Proveedor para autenticación con Google
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
   ],
-  session: {
-    strategy: 'jwt' as const,
-  },
-  secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: '/auth/signin', // Puedes crear una página de inicio de sesión personalizada
-    error: '/auth/error',
+    signIn: '/auth/login',
   },
-};
-
-const handler = NextAuth(authOptions);
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    async signIn({ user }) {
+      return !!user;
+    },
+    async redirect({ baseUrl }) {
+      return baseUrl;
+    },
+  },
+});
 
 export { handler as GET, handler as POST };
