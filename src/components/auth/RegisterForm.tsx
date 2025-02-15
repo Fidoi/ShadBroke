@@ -1,74 +1,67 @@
 'use client';
-import { AlertCircle, GalleryVerticalEnd } from 'lucide-react';
-
+import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { handleRegister } from '@/actions/auth/handler';
 import { signIn } from 'next-auth/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { login, registerUser } from '@/actions';
+import Icon from '../icons/icon';
+import { useRouter } from 'next/navigation';
 
-export function RegisterForm({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<'div'>) {
-  const [error, setError] = useState('');
+type FormInputs = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+export function RegisterForm() {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormInputs>();
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError('');
+  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+    setErrorMessage('');
+    const { name, email, password } = data;
+    const resp = await registerUser(name, email, password);
 
-    const formData = new FormData(event.currentTarget);
-    const password = formData.get('password') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
-
-    if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+    if (!resp.ok) {
+      setErrorMessage(resp.message);
       return;
     }
 
-    const result = await handleRegister(formData);
+    await login(email.toLowerCase(), password);
+    router.push('/');
+  };
 
-    if (result?.error) {
-      setError(`Error al registrar: ${result.error}`);
-      return;
-    }
-
-    const signInResult = await signIn('credentials', {
-      email: formData.get('email') as string,
-      password: password,
-      redirect: false,
-    });
-
-    if (!signInResult?.error) {
-      router.push('/');
-    } else {
-      setError(`Error al iniciar sesión: ${signInResult.error}`);
-    }
-  }
   return (
-    <div className={cn('flex flex-col gap-6 ', className)} {...props}>
-      <form onSubmit={handleSubmit}>
+    <div className={cn('flex flex-col gap-6 ')}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className='flex flex-col gap-6'>
           <div className='flex flex-col items-center gap-2'>
             <Link
-              href='#'
+              href='/'
               className='flex flex-col items-center gap-2 font-medium'
             >
-              <div className='flex h-8 w-8 items-center justify-center rounded-md'>
-                <GalleryVerticalEnd className='size-6' />
+              <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary'>
+                <Icon className='size-4' />
               </div>
-              <span className='sr-only'>Acme Inc.</span>
+              <span className='sr-only'>ShadCash.</span>
             </Link>
-            <h1 className='text-xl font-bold'>Bienvenido al Acme Inc.</h1>
+            <h1 className='text-xl font-bold'>Registrate en ShadCash!</h1>
             <div className='text-center text-sm'>
-              ¿Ya tienes una cuenta?{' '}
-              <Link href='/login' className='underline underline-offset-4'>
+              ¿O ya tienes una cuenta?{' '}
+              <Link href='/auth/login' className='underline underline-offset-4'>
                 Iniciar sesión
               </Link>
             </div>
@@ -76,40 +69,75 @@ export function RegisterForm({
           <div className='flex flex-col gap-6'>
             <div className='grid gap-2'>
               <Label htmlFor='name'>Nombre</Label>
-              <Input type='text' name='name' id='name' required />
+              <Input
+                type='text'
+                {...register('name', {
+                  required: 'El nombre es obligatorio',
+                })}
+              />
+              {errors.name && (
+                <span className='text-red-500 text-sm'>
+                  {errors.name.message}
+                </span>
+              )}
 
               <Label htmlFor='email'>Email</Label>
               <Input
-                id='email'
                 type='email'
-                name='email'
-                placeholder='m@example.com'
-                required
+                {...register('email', {
+                  required: 'El email es obligatorio',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Email inválido',
+                  },
+                })}
               />
-
+              {errors.email && (
+                <span className='text-red-500 text-sm'>
+                  {errors.email.message}
+                </span>
+              )}
               <Label htmlFor='password'>Contraseña</Label>
               <Input
-                id='password'
                 type='password'
-                name='password'
-                placeholder='*******'
-                required
+                placeholder='******'
+                {...register('password', {
+                  required: 'La contraseña es obligatoria',
+                  minLength: {
+                    value: 6,
+                    message: 'La contraseña debe tener al menos 6 caracteres',
+                  },
+                })}
               />
+              {errors.password && (
+                <span className='text-red-500 text-sm'>
+                  {errors.password.message}
+                </span>
+              )}
 
               <Label htmlFor='confirmPassword'>Confirmar Contraseña</Label>
               <Input
                 id='confirmPassword'
                 type='password'
-                name='confirmPassword'
-                placeholder='*******'
-                required
+                placeholder='******'
+                {...register('confirmPassword', {
+                  required: 'La confirmación de la contraseña es obligatoria',
+                  validate: (value) =>
+                    value === watch('password') ||
+                    'Las contraseñas no coinciden',
+                })}
               />
+              {errors.confirmPassword && (
+                <span className='text-red-500 text-sm'>
+                  {errors.confirmPassword.message}
+                </span>
+              )}
             </div>
-            {error ? (
+            {errorMessage ? (
               <Alert variant='destructive'>
                 <AlertCircle className='h-4 w-4' />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             ) : (
               <></>
@@ -129,7 +157,10 @@ export function RegisterForm({
             <Button
               variant='outline'
               className='w-full'
-              onClick={() => signIn('google')}
+              onClick={(e) => {
+                e.preventDefault();
+                signIn('google');
+              }}
             >
               <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
                 <path

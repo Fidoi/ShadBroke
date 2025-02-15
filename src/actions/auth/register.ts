@@ -1,43 +1,51 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { signIn } from 'next-auth/react';
+import bcryptjs from 'bcryptjs';
 
-export async function registerUser(
+export const registerUser = async (
+  name: string,
   email: string,
-  password: string,
-  name: string
-) {
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (existingUser) throw new Error('El usuario ya existe');
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  return prisma.user.create({
-    data: {
-      email,
-      name,
-      password: hashedPassword,
-    },
-  });
-}
-
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData
-) {
+  password: string
+) => {
   try {
-    await signIn('credentials', {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      redirect: false,
+    if (!name || !email || !password) {
+      throw new Error('Todos los campos son obligatorios');
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
     });
+
+    if (existingUser) {
+      throw new Error('El usuario ya existe');
+    }
+
+    const hashedPassword = bcryptjs.hashSync(password);
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    return {
+      ok: true,
+      user,
+      message: 'Usuario creado',
+    };
   } catch (error) {
-    console.log(error);
-    return 'Credenciales inválidas';
+    console.log((error as Error).message || error);
+
+    return {
+      ok: false,
+      message: (error as Error).message || 'No se pudo crear el usuario',
+    };
   }
-}
+};

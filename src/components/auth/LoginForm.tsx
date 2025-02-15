@@ -4,43 +4,33 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from 'next-auth/react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useActionState, useEffect } from 'react';
+
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { authenticate } from '@/actions';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    });
-
-    if (result?.error) {
-      setError('Credenciales inválidas. Intenta nuevamente.');
-      console.log(result);
-    } else {
-      router.push('/');
+  const [errorMessage, formAction, isPending] = useActionState(
+    authenticate,
+    undefined
+  );
+  console.log(errorMessage);
+  useEffect(() => {
+    if (errorMessage === 'Success') {
+      window.location.replace('/');
     }
-  }
+  });
+
   return (
     <form
       className={cn('flex flex-col gap-6', className)}
       {...props}
-      onSubmit={handleSubmit}
+      action={formAction}
     >
       <div className='flex flex-col items-center gap-2 text-center'>
         <h1 className='text-2xl font-bold'>Inicia sesión en tu cuenta</h1>
@@ -52,13 +42,7 @@ export function LoginForm({
       <div className='grid gap-6'>
         <div className='grid gap-2'>
           <Label htmlFor='email'>Email</Label>
-          <Input
-            id='email'
-            type='email'
-            name='email'
-            placeholder='m@example.com'
-            required
-          />
+          <Input id='email' type='email' name='email' required />
         </div>
         <div className='grid gap-2'>
           <div className='flex items-center'>
@@ -70,21 +54,34 @@ export function LoginForm({
               Olvidaste tu contraseña?
             </Link>
           </div>
-          <Input id='password' type='password' name='password' required />
+          <Input
+            id='password'
+            type='password'
+            name='password'
+            placeholder='********'
+            required
+          />
         </div>
-        {error ? (
+        {errorMessage && errorMessage !== 'Success' ? (
           <Alert variant='destructive'>
             <AlertCircle className='h-4 w-4' />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         ) : (
           <></>
         )}
+        {!isPending ? (
+          <Button type='submit' className='w-full'>
+            Ingresar
+          </Button>
+        ) : (
+          <Button disabled>
+            <Loader2 className='animate-spin' />
+            Cargando
+          </Button>
+        )}
 
-        <Button type='submit' className='w-full'>
-          Ingresar
-        </Button>
         <div className='relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border'>
           <span className='relative z-10 bg-background px-2 text-muted-foreground'>
             O continua con
@@ -93,7 +90,10 @@ export function LoginForm({
         <Button
           variant='outline'
           className='w-full'
-          onClick={() => signIn('google')}
+          onClick={(e) => {
+            e.preventDefault();
+            signIn('google');
+          }}
         >
           <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
             <path
@@ -106,7 +106,7 @@ export function LoginForm({
       </div>
       <div className='text-center text-sm'>
         No tienes una cuenta?{' '}
-        <Link href='/register' className='underline underline-offset-4'>
+        <Link href='/auth/register' className='underline underline-offset-4'>
           Registrate!
         </Link>
       </div>
