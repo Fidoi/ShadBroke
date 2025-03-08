@@ -46,7 +46,6 @@ interface Props {
 
 export const AddressForm = ({ regiones }: Props) => {
   const productsInCart = useCartStore((state) => state.cart);
-  const clearCart = useCartStore((state) => state.clearCart);
   const form = useForm<FormData>({
     defaultValues: {
       firstName: '',
@@ -159,9 +158,8 @@ export const AddressForm = ({ regiones }: Props) => {
       if (rememberAddress) {
         setUserAddress(addressData, session!.user.id);
       }
-      clearCart();
     },
-    [clearCart, productsInCart, regiones, session]
+    [productsInCart, regiones, session]
   );
   useEffect(() => {
     useFormStore.getState().setIsFormValid(form.formState.isValid);

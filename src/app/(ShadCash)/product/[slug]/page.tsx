@@ -12,6 +12,7 @@ import {
   ProductSlideshow,
   Review,
   ShareModal,
+  StockLabel,
 } from '@/components';
 import { currencyFormat, genderTranslations } from '@/utils';
 import { Pencil } from 'lucide-react';
@@ -88,9 +89,13 @@ export default async function ProductBySlugPage({ params }: Props) {
 
           <div className='flex flex-col justify-start'>
             <div className='flex justify-between'>
-              <h1 className='text-3xl font-bold mb-2 text-primary'>
-                {product.title}
-              </h1>
+              <div className='col-span-1'>
+                <h1 className='text-3xl font-bold mb-2 text-primary'>
+                  {product.title}
+                </h1>
+                <StockLabel slug={product.slug} />
+              </div>
+
               <div className='flex gap-x-2'>
                 <FavoriteButton
                   productId={product.id}
@@ -115,7 +120,7 @@ export default async function ProductBySlugPage({ params }: Props) {
                   <span className='text-sm line-through text-gray-500'>
                     {currencyFormat(product.price)}
                   </span>
-                  <DiscountBadge discount={product.discount} />
+                  <DiscountBadge discount={product.discount} text='% off' />
                 </div>
                 <p className='text-xl font-semibold text-gray-700 '>
                   {currencyFormat(product.price * (1 - product.discount / 100))}

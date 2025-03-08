@@ -47,7 +47,7 @@ export const ProductGridItem = ({ product }: Props) => {
                 <span className='text-sm line-through text-gray-500 '>
                   {currencyFormat(product.price)}
                 </span>
-                <DiscountBadge discount={product.discount} />
+                <DiscountBadge discount={product.discount} text='% off' />
               </div>
               <span className='text-lg font-bold text-primary'>
                 {currencyFormat(product.price * (1 - product.discount / 100))}

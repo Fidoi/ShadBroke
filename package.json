@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "prisma:deploy": "npx prisma migrate deploy && prisma generate",
     "start": "next start",
+    "postinstall": "prisma generate",
     "lint": "next lint",
-    "seed": "ts-node -r dotenv/config --project tsconfig.seed.json src/seeds/seed-products.ts"
+    "seed": "ts-node -r dotenv/config --project tsconfig.seed.json src/seeds/seed-products.ts",
+    "seed:chile": "ts-node -r dotenv/config --project tsconfig.seed.json src/seeds/seed-chile.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",

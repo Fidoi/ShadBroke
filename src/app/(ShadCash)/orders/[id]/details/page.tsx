@@ -32,7 +32,7 @@ export default async function OrdersDetails({ params }: OrdersDetailsProps) {
                 className='flex mb-5'
               >
                 <Image
-                  src={`/products/${item.product.ProductImage[0].url}`}
+                  src={`${item.product.ProductImage[0].url}`}
                   width={100}
                   height={100}
                   style={{ width: '100px', height: '100' }}
