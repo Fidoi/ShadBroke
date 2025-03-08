@@ -1,6 +1,9 @@
 import { Banner, FeaturedProducts, MenuSlider, Separator } from '@/components';
+import { getDiscountedProducts } from '@/actions';
 
-export default function Home() {
+export default async function Home() {
+  const { products } = await getDiscountedProducts({ page: 1 });
+
   return (
     <div>
       <MenuSlider
@@ -15,7 +18,7 @@ export default function Home() {
       <Separator className='my-6' />
       <Banner />
       <Separator className='my-6' />
-      <FeaturedProducts />
+      {products?.length > 0 && <FeaturedProducts products={products} />}
     </div>
   );
 }

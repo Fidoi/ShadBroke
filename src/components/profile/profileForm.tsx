@@ -1,212 +1,192 @@
 'use client';
 
-import Link from 'next/link';
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { toast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '../ui/form';
 import { Input } from '../ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import Image from 'next/image';
 import { Button } from '../ui/button';
-import { toast } from '@/hooks/use-toast';
+import { CheckCircle, CircleX, Loader2 } from 'lucide-react';
+import { updateUserProfile, uploadImage } from '@/actions';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const profileFormSchema = z.object({
-  username: z
+  name: z
     .string()
     .min(2, {
-      message: 'Username must be at least 2 characters.',
+      message: 'El nombre debe tener al menos 2 caracteres',
     })
-    .max(30, {
-      message: 'Username must not be longer than 30 characters.',
-    }),
-  email: z
-    .string({
-      required_error: 'Please select an email to display.',
-    })
-    .email(),
-  bio: z.string().max(160).min(4),
-  urls: z
-    .array(
-      z.object({
-        value: z.string().url({ message: 'Please enter a valid URL.' }),
-      })
-    )
-    .optional(),
+    .max(50),
+  imageFile: z.any().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: 'I own a computer.',
-  urls: [
-    { value: 'https://shadcn.com' },
-    { value: 'http://twitter.com/shadcn' },
-  ],
-};
-
 interface Props {
+  userId: string;
   name: string;
-  image: string;
   email: string;
+  image: string;
 }
 
-export function ProfileForm({ name, email, image }: Props) {
+export function ProfileForm({ userId, name, email, image }: Props) {
+  const { update } = useSession();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [previewImage, setPreviewImage] = useState(image);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
-    mode: 'onChange',
+    defaultValues: {
+      name,
+      imageFile: undefined,
+    },
   });
 
-  const { fields, append } = useFieldArray({
-    name: 'urls',
-    control: form.control,
-  });
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+    setSelectedFile(file);
+    setPreviewImage(URL.createObjectURL(file));
+  };
+
+  const onSubmit = (data: ProfileFormValues) => {
+    startTransition(async () => {
+      try {
+        let imageUrl = previewImage;
+
+        if (selectedFile) {
+          const formData = new FormData();
+          formData.append('image', selectedFile);
+          imageUrl = await uploadImage(userId, formData);
+        }
+
+        await updateUserProfile(userId, {
+          name: data.name,
+          image: imageUrl,
+        });
+
+        await update({
+          forceUpdate: true,
+        });
+
+        setSelectedFile(null);
+        form.reset({ name: data.name });
+        router.refresh();
+
+        toast({
+          title: (
+            <div className='flex items-center gap-2'>
+              <CheckCircle className='h-5 w-5' />
+              <span>Ajuste de perfil : </span>
+            </div>
+          ) as unknown as string,
+          description: 'Perfil actualizado correctamente',
+          className: 'toast-success',
+        });
+      } catch (error) {
+        toast({
+          title: (
+            <div className='flex items-center gap-2'>
+              <CircleX className='h-5 w-5' />
+              <span>Error de permisos : </span>
+            </div>
+          ) as unknown as string,
+          description: `No se pudo actualizar el perfil: ${error}`,
+          variant: 'destructive',
+        });
+      }
     });
-  }
+  };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-        <FormField
-          control={form.control}
-          name='username'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre de usuario</FormLabel>
-              <FormControl>
-                <Input placeholder={name} {...field} />
-              </FormControl>
-              <FormDescription>
-                Este es tu nombre público. Puede ser tu nombre real o un
-                seudónimo. Solo puedes cambiarlo una vez cada 30 días.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={email} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='m@example.com'>m@example.com</SelectItem>
-                  <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                  <SelectItem value='m@support.com'>m@support.com</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                You can manage verified email addresses in your{' '}
-                <Link href='/examples/forms'>email settings</Link>.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='bio'
-          render={({ field }) => (
-            <FormItem>
+    <div className='space-y-8'>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+          <div className='grid gap-4'>
+            <div className='space-y-2'>
               <FormLabel>Imagen de perfil</FormLabel>
-              {image && image.startsWith('http') ? (
-                <Image
-                  src={image}
-                  height={100}
-                  width={100}
-                  alt='Profile Image'
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: '50%',
-                    backgroundColor: '#e5e7eb',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {image}
+              <div className='flex items-center gap-4'>
+                <div className='relative h-20 w-20 rounded-full'>
+                  {previewImage?.startsWith('http') ||
+                  previewImage?.startsWith('blob') ? (
+                    <Image
+                      src={previewImage}
+                      alt='Profile'
+                      className='rounded-full object-cover'
+                      fill
+                      sizes='80px'
+                    />
+                  ) : (
+                    <div className='flex h-full w-full items-center justify-center rounded-full bg-muted text-2xl font-bold'>
+                      {previewImage}
+                    </div>
+                  )}
                 </div>
-              )}
-              <FormDescription>
-                Puedes cambiarla por una personalizada
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormItem>
+                  <FormControl>
+                    <label className='cursor-pointer'>
+                      <Input
+                        type='file'
+                        className='hidden'
+                        onChange={handleImageChange}
+                        accept='image/*'
+                      />
+                      <Button asChild variant='outline'>
+                        <span>Seleccionar nueva imagen</span>
+                      </Button>
+                    </label>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </div>
+            </div>
 
-        <div>
-          {fields.map((field, index) => (
             <FormField
               control={form.control}
-              key={field.id}
-              name={`urls.${index}.value`}
+              name='name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={cn(index !== 0 && 'sr-only')}>
-                    URLs
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && 'sr-only')}>
-                    Add links to your website, blog, or social media profiles.
-                  </FormDescription>
+                  <FormLabel>Nombre</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder='Tu nombre'
+                      {...field}
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          ))}
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='mt-2'
-            onClick={() => append({ value: '' })}
-          >
-            Add URL
+
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input value={email} readOnly disabled />
+              </FormControl>
+            </FormItem>
+          </div>
+
+          <Button type='submit' disabled={isPending}>
+            {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+            Actualizar perfil
           </Button>
-        </div>
-        <Button type='submit'>Update profile</Button>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </div>
   );
 }

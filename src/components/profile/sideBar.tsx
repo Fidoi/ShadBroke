@@ -2,15 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '../ui/button';
 
+interface SidebarNavItem {
+  href: string;
+  title: string;
+  icon?: React.ReactNode;
+}
+
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  items: {
-    href: string;
-    title: string;
-  }[];
+  items: SidebarNavItem[];
 }
 
 export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
@@ -32,10 +34,11 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
             buttonVariants({ variant: 'ghost' }),
             pathname === item.href
               ? 'bg-muted hover:bg-muted'
-              : 'hover:bg-transparent ',
+              : 'hover:bg-transparent',
             'justify-start'
           )}
         >
+          {item.icon && <span className='mr-2'>{item.icon}</span>}
           {item.title}
         </Link>
       ))}

@@ -14,7 +14,7 @@ export const Footer = () => {
           width={200}
           height={200}
         />
-        {/* Logo y contacto */}
+
         <div>
           <h2 className='text-xl font-bold'>
             Shad<span className='text-gray-400'>Broke</span>
@@ -33,49 +33,40 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Links */}
         <Separator className='my-6 bg-slate-300 md:hidden' />
         <div className='flex md:flex-col sm:flex-row  justify-evenly w-full'>
           <h3 className='font-semibold mb-3'>Links</h3>
           <ul className='space-y-2'>
-            <li>Products List</li>
-            <li>Order Tracking</li>
-            <li>Products Guide</li>
-            <li>Shopping Cart</li>
-            <li>Tech Blog</li>
+            <li>Lista de productos</li>
+            <li>Seguimiento de pedidos</li>
+            <li>Guía de productos</li>
+            <li>Carrito de compras</li>
           </ul>
         </div>
 
-        {/* Soporte */}
         <Separator className='my-6 bg-slate-300 md:hidden' />
         <div className='flex md:flex-col sm:flex-row justify-evenly w-full'>
-          <h3 className='font-semibold mb-3'>Supports</h3>
+          <h3 className='font-semibold mb-3'>Soporte</h3>
           <ul className='space-y-2'>
-            <li>About Us</li>
-            <li>Privacy Policy</li>
-            <li>Return Policy</li>
-            <li>Help Centre</li>
-            <li>Store Locations</li>
-            <li>Careers</li>
+            <li>Acerca de nosotros</li>
+            <li>Política de privacidad</li>
+            <li>Política de devoluciones</li>
+            <li>Centro de ayuda</li>
           </ul>
         </div>
 
-        {/* Categorías */}
         <Separator className='my-6 bg-slate-300 md:hidden ' />
         <div className='flex md:flex-col sm:flex-row justify-evenly w-full'>
-          <h3 className='font-semibold mb-3'>Categories:</h3>
+          <h3 className='font-semibold mb-3'>Categorias:</h3>
 
           <ul className='space-y-2 '>
-            <li>Computers & Tablets</li>
-            <li>Mobile Phones & Accessories</li>
-            <li>TV & Home Theater</li>
-            <li>Audio & Headphones</li>
-            <li>Cameras & Camcorders</li>
-            <li>Gaming Equipment</li>
-            <li>Home Appliances</li>
+            <li>Hoodies</li>
+            <li>Gorras</li>
+            <li>Pantalones</li>
+            <li>Poleras</li>
           </ul>
         </div>
-        {/* Pagos y redes sociales */}
+
         <Separator className='my-6 bg-slate-300 md:hidden' />
         <div>
           <div className='flex flex-col '>
@@ -90,10 +81,39 @@ export const Footer = () => {
 
           <div className='flex space-x-4 mt-9 md:mt-0 flex-col'>
             <span className='font-semibold'>Conecta con nosotros:</span>
-            <div className='flex flex-col'>
-              <span>Twitter</span>
-              <span>Instagram</span>
-              <span>Facebook</span>
+            <div className='flex flex-col text-whit gap-y-4'>
+              <span className='flex gap-x-2'>
+                <Image
+                  src='/icons/x.svg'
+                  alt='Twitter'
+                  width={24}
+                  height={24}
+                  className='invert'
+                />
+                Twitter
+              </span>
+
+              <span className='flex gap-x-2'>
+                <Image
+                  src='/icons/instagram.svg'
+                  alt='Twitter'
+                  width={24}
+                  height={24}
+                  className='invert'
+                />
+                Instagram
+              </span>
+
+              <span className='flex gap-x-2'>
+                <Image
+                  src='/icons/facebook.svg'
+                  alt='Twitter'
+                  width={24}
+                  height={24}
+                  className='invert'
+                />
+                Facebook
+              </span>
             </div>
           </div>
         </div>

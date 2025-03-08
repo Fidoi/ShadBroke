@@ -1,5 +1,5 @@
 import { auth } from '@/auth.config';
-import ProfileIconClient from './profileIconClient';
+import ProfileIconClient from './profileDropDown';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { CircleUserRound } from 'lucide-react';
 import Link from 'next/link';
@@ -9,9 +9,9 @@ export default async function ProfileIcon() {
 
   if (!session) {
     return (
-      <Avatar className='relative ml-3'>
+      <Avatar className='relative'>
         <AvatarFallback>
-          <Link href='auth/login'>
+          <Link href='/auth/login'>
             <CircleUserRound className='w-6 h-6' />
           </Link>
         </AvatarFallback>

@@ -56,9 +56,9 @@ export function RegisterForm() {
               <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary'>
                 <Icon className='size-4' />
               </div>
-              <span className='sr-only'>ShadCash.</span>
+              <span className='sr-only'>ShadBroke.</span>
             </Link>
-            <h1 className='text-xl font-bold'>Registrate en ShadCash!</h1>
+            <h1 className='text-xl font-bold'>Registrate en ShadBroke!</h1>
             <div className='text-center text-sm'>
               ¿O ya tienes una cuenta?{' '}
               <Link href='/auth/login' className='underline underline-offset-4'>

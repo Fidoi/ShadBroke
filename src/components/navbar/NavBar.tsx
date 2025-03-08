@@ -1,11 +1,11 @@
-import { Heart, Search } from 'lucide-react';
 import ProfileIcon from './profileIcon';
 import { MobileNav } from './MobileNav';
 import { NavItems } from './ui/NavItems';
 import Link from 'next/link';
-import { Cart } from './shoping/Cart';
+import { Cart } from '../shoping/Cart';
 import Image from 'next/image';
-import { Button, Input } from '../ui';
+import { Button } from '../ui';
+import SearchProducts from './ui/SearchProducts';
 
 export default function NavBar() {
   return (
@@ -55,19 +55,10 @@ export default function NavBar() {
         </div>
         <NavItems />
         <div className='flex items-center gap-6 justify-center'>
-          <div className='flex flex-row items-center gap-2 rounded bg-secondary p-1 '>
-            <Input
-              className='bg-secondary px-5 py-2.5 outline-0 placeholder:text-xs w-full max-w-xs sm:max-w-md'
-              placeholder='Buscar'
-            />
-            <Search type='submit' className='cursor-pointer' />
+          <div className='flex flex-row items-center gap-2 rounded  p-1 '>
+            <SearchProducts />
           </div>
-
-          <div className='flex items-center gap-4'>
-            <Link href={'/favorites'}>
-              <Heart />
-            </Link>
-
+          <div className='flex items-center gap-4 justify-end'>
             <ProfileIcon />
             <Cart />
           </div>

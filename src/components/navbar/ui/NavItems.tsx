@@ -12,44 +12,28 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 
 const components: { title: string; href: string; description: string }[] = [
   {
-    title: 'Alert Dialog',
-    href: '/docs/primitives/alert-dialog',
-    description:
-      'A modal dialog that interrupts the user with important content and expects a response.',
+    title: 'Polerones',
+    href: '/categories/sweatshirt',
+    description: 'Prendas abrigadas con mangas largas, ideales para el frío.',
   },
   {
-    title: 'Hover Card',
-    href: '/docs/primitives/hover-card',
-    description:
-      'For sighted users to preview content available behind a link.',
+    title: 'Camisas',
+    href: '/categories/shirt',
+    description: 'Ropa formal o casual con botones y cuello.',
   },
   {
-    title: 'Progress',
-    href: '/docs/primitives/progress',
-    description:
-      'Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.',
+    title: 'Hoodies',
+    href: '/categories/hoodie',
+    description: 'Sudaderas con capucha para un estilo cómodo y urbano.',
   },
   {
-    title: 'Scroll-area',
-    href: '/docs/primitives/scroll-area',
-    description: 'Visually or semantically separates content.',
-  },
-  {
-    title: 'Tabs',
-    href: '/docs/primitives/tabs',
-    description:
-      'A set of layered sections of content—known as tab panels—that are displayed one at a time.',
-  },
-  {
-    title: 'Tooltip',
-    href: '/docs/primitives/tooltip',
-    description:
-      'A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.',
+    title: 'Gorros',
+    href: '/categories/hat',
+    description: 'Accesorios para la cabeza que protegen del frío o el sol.',
   },
 ];
 
@@ -75,7 +59,7 @@ export function NavItems() {
                     />
                     <div className='absolute bottom-4 left-4 right-4 p-4 bg-black bg-opacity-50 rounded-md'>
                       <div className='mb-2 text-lg font-medium text-white'>
-                        Verano
+                        Ver todo
                       </div>
                       <p className='text-sm leading-tight text-white'>
                         Revisa toda la ropa de ultima moda
@@ -90,14 +74,14 @@ export function NavItems() {
               <ListItem href='/gender/women' title='Mujeres 👩🏻‍🦰'>
                 Explora las últimas tendencias en moda femenina.
               </ListItem>
-              <ListItem href='/docs/primitives/typography' title='Niños 👦🏻'>
+              <ListItem href='/gender/kid' title='Niños 👦🏻'>
                 Encuentra ropa cómoda y moderna para los más pequeños.
               </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Categorias</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className='grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] '>
               {components.map((component) => (
@@ -111,13 +95,6 @@ export function NavItems() {
               ))}
             </ul>
           </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <Link href='/docs' legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Documentation
-            </NavigationMenuLink>
-          </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

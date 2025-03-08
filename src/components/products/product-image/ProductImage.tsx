@@ -11,6 +11,7 @@ interface Props {
   onMouseLeave?: () => void;
   sizes?: number;
 }
+
 export const ProductImage = ({
   src,
   alt,
@@ -26,16 +27,19 @@ export const ProductImage = ({
       ? src
       : `/products/${src}`
     : '/imgs/placeholder.jpg';
+
   return (
-    <Image
-      src={localSrc}
-      width={width}
-      height={height}
-      alt={alt}
-      className={className}
-      style={style}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    />
+    <div className='overflow-hidden w-full h-full'>
+      <Image
+        src={localSrc}
+        width={width}
+        height={height}
+        alt={alt}
+        className={`object-cover w-full h-full ${className}`}
+        style={style}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      />
+    </div>
   );
 };

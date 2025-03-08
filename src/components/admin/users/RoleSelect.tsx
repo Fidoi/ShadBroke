@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Role } from '@prisma/client';
+import { CheckCircle, CircleX } from 'lucide-react';
 
 interface Props {
   userId: string;
@@ -39,14 +40,23 @@ export const UserRoleSelect = ({ userId, initialRole }: Props) => {
         setRole(originalRole);
         toast({
           variant: 'destructive',
-          title: 'Error de permisos',
+          title: (
+            <div className='flex items-center gap-2'>
+              <CircleX className='h-5 w-5' />
+              <span>Error de permisos : </span>
+            </div>
+          ) as unknown as string,
           description: result.message || 'No tienes los permisos necesarios',
         });
       }
       if (result.ok) {
-        console.log('ya');
         toast({
-          title: `Success`,
+          title: (
+            <div className='flex items-center gap-2'>
+              <CheckCircle className='h-5 w-5' />
+              <span>Exito! : </span>
+            </div>
+          ) as unknown as string,
           className: 'toast-success',
           description: `El usuario ha sido modificado`,
         });
@@ -55,7 +65,12 @@ export const UserRoleSelect = ({ userId, initialRole }: Props) => {
       setRole(originalRole);
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: (
+          <div className='flex items-center gap-2'>
+            <CircleX className='h-5 w-5' />
+            <span>Error : </span>
+          </div>
+        ) as unknown as string,
         description: 'Error al actualizar el rol',
       });
     } finally {

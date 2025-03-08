@@ -21,28 +21,30 @@ export const ProductSlideshow = ({ images, title, className }: Props) => {
 
   return (
     <div className={`flex flex-row gap-1 ${className}`}>
-      <Swiper
-        onSwiper={setThumbsSwiper}
-        direction='vertical'
-        spaceBetween={120}
-        slidesPerView={4}
-        freeMode={true}
-        watchSlidesProgress={true}
-        modules={[FreeMode, Navigation, Thumbs]}
-        className='mySwiper w-[100px] h-[500px]'
-      >
-        {images.map((image) => (
-          <SwiperSlide key={image}>
-            <ProductImage
-              width={200}
-              height={300}
-              src={image}
-              alt={title}
-              className='rounded-lg object-cover cursor-pointer'
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      <div className='hidden md:block'>
+        <Swiper
+          onSwiper={setThumbsSwiper}
+          direction='vertical'
+          spaceBetween={10}
+          slidesPerView={4}
+          freeMode={true}
+          watchSlidesProgress={true}
+          modules={[FreeMode, Navigation, Thumbs]}
+          className='mySwiper w-[100px] h-[500px]'
+        >
+          {images.map((image) => (
+            <SwiperSlide key={image} className='!h-[120px] mb-2'>
+              <ProductImage
+                width={100}
+                height={120}
+                src={image}
+                alt={title}
+                className='rounded-lg object-contain cursor-pointer border'
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
       <Swiper
         style={
           {
@@ -57,16 +59,16 @@ export const ProductSlideshow = ({ images, title, className }: Props) => {
           swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
         }}
         modules={[FreeMode, Navigation, Thumbs, Autoplay]}
-        className='flex-1'
+        className='flex-1 w-full h-[680px]'
       >
         {images.map((image) => (
           <SwiperSlide key={image}>
             <ProductImage
-              width={1024}
-              height={800}
+              width={500}
+              height={750}
               src={image}
               alt={title}
-              className='rounded-lg object-fill'
+              className='w-full h-full object-cover rounded-lg'
             />
           </SwiperSlide>
         ))}

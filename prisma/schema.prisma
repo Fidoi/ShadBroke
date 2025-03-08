@@ -37,9 +37,11 @@ enum Role {
 }
 
 model Category {
-  id      String    @id @default(uuid())
-  name    String    @unique
-  Product Product[]
+  id         String    @id @default(uuid())
+  name       String    @unique
+  Product    Product[]
+  Discount   Discount? @relation(fields: [discountId], references: [id])
+  discountId String?
 }
 
 model Product {
@@ -48,7 +50,10 @@ model Product {
   description  String
   inStock      Int
   price        Float          @default(0)
+  discount     Float?         @default(0)
+  discountEnd  DateTime?
   sizes        Size[]         @default([])
+  colors       String[]       @default([])
   slug         String         @unique
   tags         String[]       @default([])
   gender       Gender
@@ -56,38 +61,60 @@ model Product {
   category     Category       @relation(fields: [categoryId], references: [id])
   categoryId   String
   ProductImage ProductImage[]
+  discounts    Discount[]
   OrderItem    OrderItem[]
   Review       Review[]
+  Favorite     Favorite[]
 
   @@index([gender])
+}
+
+model Discount {
+  id         String     @id @default(uuid())
+  type       String
+  value      Float
+  startDate  DateTime
+  endDate    DateTime
+  products   Product[]
+  categories Category[]
 }
 
 model ProductImage {
   id        Int     @id @default(autoincrement())
   url       String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
-  email         String       @unique
+  email         String        @unique
   emailVerified DateTime?
-  role          Role         @default(user)
+  role          Role          @default(user)
   image         String?
   password      String?
   accounts      Account[]
   sessions      Session[]
   Order         Order[]
-  address       UserAddress?
+  addresses     UserAddress[]
   Review        Review[]
+  Favorite      Favorite[]
+}
+
+model Favorite {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  @@unique([userId, productId])
 }
 
 model Order {
   id           String        @id @default(uuid())
   subTotal     Float
-  tax          Float
   total        Float
   itemsInOrder Int
   isPaid       Boolean       @default(false)
@@ -104,19 +131,22 @@ model Order {
 }
 
 model UserAddress {
-  id         String  @id @default(uuid())
-  firstName  String
-  lastName   String
-  address    String
-  address2   String?
-  postalCode String
-  phone      String
-  city       String
-  // Relaciones
-  country    Country @relation(fields: [countryId], references: [id])
-  countryId  String
-  user       User    @relation(fields: [userId], references: [id])
-  userId     String  @unique
+  id          String    @id @default(uuid())
+  firstName   String
+  lastName    String
+  address     String
+  address2    String?
+  phone       String
+  // Relaciones con Región, Provincia y Comuna
+  region      Region    @relation(fields: [regionId], references: [id])
+  regionId    Int
+  provincia   Provincia @relation(fields: [provinciaId], references: [id])
+  provinciaId Int
+  comuna      Comuna    @relation(fields: [comunaId], references: [id])
+  comunaId    Int
+  // Relación con el usuario
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
 }
 
 model OrderItem {
@@ -127,29 +157,52 @@ model OrderItem {
   // Relaciones
   order     Order   @relation(fields: [orderId], references: [id])
   orderId   String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 
 model OrderAddress {
-  id         String  @id @default(uuid())
-  firstName  String
-  lastName   String
-  address    String
-  address2   String?
-  postalCode String
-  city       String
-  phone      String
-  // Relaciones
-  country    Country @relation(fields: [countryId], references: [id])
-  countryId  String
-  Order      Order   @relation(fields: [orderId], references: [id])
-  orderId    String  @unique
+  id          String    @id @default(uuid())
+  firstName   String
+  lastName    String
+  address     String
+  address2    String?
+  phone       String
+  // Relaciones con Región, Provincia y Comuna
+  region      Region    @relation(fields: [regionId], references: [id])
+  regionId    Int
+  provincia   Provincia @relation(fields: [provinciaId], references: [id])
+  provinciaId Int
+  comuna      Comuna    @relation(fields: [comunaId], references: [id])
+  comunaId    Int
+  // Relación con la orden
+  Order       Order     @relation(fields: [orderId], references: [id])
+  orderId     String    @unique
 }
 
-model Country {
-  id           String         @id
-  name         String
+model Region {
+  id           Int            @id @default(autoincrement())
+  nombre       String
+  provincias   Provincia[]
+  UserAddress  UserAddress[]
+  OrderAddress OrderAddress[]
+}
+
+model Provincia {
+  id           Int            @id @default(autoincrement())
+  nombre       String
+  region       Region         @relation(fields: [regionId], references: [id])
+  regionId     Int
+  comunas      Comuna[]
+  UserAddress  UserAddress[]
+  OrderAddress OrderAddress[]
+}
+
+model Comuna {
+  id           Int            @id @default(autoincrement())
+  nombre       String
+  provincia    Provincia      @relation(fields: [provinciaId], references: [id])
+  provinciaId  Int
   UserAddress  UserAddress[]
   OrderAddress OrderAddress[]
 }
@@ -199,6 +252,6 @@ model Review {
   // Relaciones
   user      User    @relation(fields: [userId], references: [id])
   userId    String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }

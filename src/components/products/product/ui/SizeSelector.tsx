@@ -13,21 +13,21 @@ export const SizeSelector = ({
   onSizeChanged,
 }: Props) => {
   return (
-    <div>
+    <div className='w-full'>
       <h3 className='text-md font-semibold mb-2'>Tallas disponibles</h3>
-      <div className='flex'>
+      <div className='flex flex-wrap gap-2'>
         {availableSizes.map((size) => (
           <button
             key={size}
             onClick={() => onSizeChanged(size)}
             className={clsx(
-              'mx-2 w-10 h-10 flex items-center justify-center border-2 rounded-full transition-colors duration-200',
+              'min-w-10 h-10 flex items-center justify-center border-2 rounded-full transition-colors duration-200 px-2',
               size === selectedSize
                 ? 'border-blue-600 bg-blue-300'
-                : 'border-transparent hover:border-blue-300'
+                : 'border-gray-200 hover:border-blue-300'
             )}
           >
-            <span className='text-lg font-semibold'>{size}</span>
+            <span className='text-sm font-semibold'>{size}</span>
           </button>
         ))}
       </div>

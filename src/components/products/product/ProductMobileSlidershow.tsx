@@ -37,6 +37,7 @@ export const ProductMobileSlideshow = ({ images, title, className }: Props) => {
             />
           </SwiperSlide>
         ))}
+        a
       </Swiper>
     </div>
   );

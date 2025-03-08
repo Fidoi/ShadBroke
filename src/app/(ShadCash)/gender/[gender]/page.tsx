@@ -1,8 +1,9 @@
 import { getPaginatedProductsWithImages } from '@/actions';
-import { PaginationNav } from '@/components';
-
+import { BreadcrumbWithCustomSeparator, PaginationNav } from '@/components';
 import { ProductGrid } from '@/components/products/ProductGrid';
+import { genderTranslations } from '@/utils';
 import { Gender } from '@prisma/client';
+import { notFound, redirect } from 'next/navigation';
 
 interface Props {
   params: Promise<{ gender: string }>;
@@ -11,9 +12,11 @@ interface Props {
 
 export default async function GenderByPage({ params, searchParams }: Props) {
   const { gender } = await params;
+  if (!Object.values(Gender).includes(gender as Gender)) {
+    notFound();
+  }
   const { page: pageParam } = await searchParams;
 
-  // Obtener el número de página, por defecto a 1
   const page = pageParam ? parseInt(pageParam) : 1;
   const { products, /* currentPage, */ totalPages } =
     await getPaginatedProductsWithImages({
@@ -21,16 +24,26 @@ export default async function GenderByPage({ params, searchParams }: Props) {
       gender: gender as Gender,
     });
 
-  // Redireccionar si no hay productos
-  {
-    /*if (products.length === 0) {
-    redirect(`/gender/${gender}`);
-  }*/
+  if (products.length === 0) {
+    redirect(`/products`);
   }
+
   return (
-    <div>
+    <div className='max-w-6xl mx-auto p-6 '>
+      <div className='mb-2'>
+        <BreadcrumbWithCustomSeparator
+          items={[
+            { label: 'Productos', href: '/products' },
+            {
+              label: genderTranslations[gender as Gender],
+              href: `/gender/${gender}`,
+            },
+          ]}
+        />
+      </div>
+
       <ProductGrid products={products} />
-      page <PaginationNav totalPages={totalPages} />
+      <PaginationNav totalPages={totalPages} />
     </div>
   );
 }

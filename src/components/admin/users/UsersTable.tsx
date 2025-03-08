@@ -2,7 +2,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -65,7 +64,7 @@ export const UsersTable = ({ users }: Props) => {
             <TableCell className='text-right'>{user.email}</TableCell>
             <TableCell className='text-right'>{user.email}</TableCell>
             <TableCell className='text-right'>
-              <Avatar className='relative ml-3'>
+              <Avatar className='relative'>
                 <AvatarFallback>
                   <Avatar>
                     {user?.image ? (
@@ -88,12 +87,6 @@ export const UsersTable = ({ users }: Props) => {
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={5}>Total</TableCell>
-          <TableCell className='text-right'>$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter>
     </Table>
   );
 };

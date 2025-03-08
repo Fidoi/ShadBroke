@@ -4,6 +4,15 @@ import { z } from 'zod';
 import prisma from './lib/prisma';
 import bcryptjs from 'bcryptjs';
 import Google from 'next-auth/providers/google';
+import { Role } from '@prisma/client';
+
+interface JWTData {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  image?: string | null;
+}
 
 export const authConfig: NextAuthConfig = {
   pages: {
@@ -15,16 +24,46 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request: { nextUrl } }) {
       return true;
     },
-    jwt({ token, user }) {
+    jwt: async ({ token, user, trigger }) => {
       if (user) {
-        token.data = user;
+        token.sub = user.id;
+        token.data = {
+          id: user.id!,
+          name: user.name || '',
+          email: user.email || '',
+          role: (user.role as Role) || 'user',
+          image: user.image || null,
+        } satisfies JWTData;
       }
+
+      if (trigger === 'update') {
+        const updatedUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            image: true,
+          },
+        });
+
+        if (updatedUser) {
+          token.data = {
+            ...(token.data as JWTData),
+            ...updatedUser,
+            role: updatedUser.role as Role,
+          } satisfies JWTData;
+        }
+      }
+
       return token;
     },
+    session: ({ session, token }) => {
+      session.user = {
+        ...(token.data as JWTData),
+      } as typeof session.user;
 
-    session({ session, token, user }) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      session.user = token.data as any;
       return session;
     },
     async redirect({ baseUrl }) {
@@ -32,9 +71,8 @@ export const authConfig: NextAuthConfig = {
     },
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
-        if (!user.email) {
-          throw new Error('El usuario no tiene un correo electrónico válido');
-        }
+        if (!user.email) throw new Error('Email requerido');
+
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
@@ -45,12 +83,18 @@ export const authConfig: NextAuthConfig = {
               name: user.name!,
               email: user.email,
               image: user.image,
+              role: 'user',
+              password: '',
             },
           });
           user.id = createdUser.id;
-          user.role = existingUser!.role;
+          user.name = createdUser.name;
+          user.image = createdUser.image;
+          user.role = createdUser.role;
         } else {
           user.id = existingUser.id;
+          user.name = existingUser.name;
+          user.image = existingUser.image;
           user.role = existingUser.role;
         }
       }
@@ -76,7 +120,13 @@ export const authConfig: NextAuthConfig = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...rest } = user;
 
-        return rest;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          image: user.image,
+        };
       },
     }),
     Google({

@@ -1,36 +1,51 @@
 import { auth } from '@/auth.config';
 import { Separator, SidebarNav } from '@/components';
+import {
+  ChartNoAxesCombined,
+  Crown,
+  ListOrdered,
+  PackageSearch,
+  Settings,
+  UserRoundPen,
+  Users,
+} from 'lucide-react';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Perfil',
-  description: 'Advanced form example using react-hook-form and Zod.',
+  description: 'Vista previa del perfil.',
 };
 
 const sidebarNavItems = [
   {
     title: 'Perfil',
+    icon: <UserRoundPen />,
     href: '/profile',
   },
   {
-    title: 'Direccion',
-    href: '/profile/directions',
-  },
-  {
-    title: 'Compras',
+    title: 'Pedidos',
+    icon: <ListOrdered />,
     href: '/profile/shopping',
   },
 ];
 
 const sideBarNavItemsAdmin = [
   {
-    title: 'Usuarios',
-    href: '/profile/admin/users',
+    title: 'Ventas',
+    icon: <ChartNoAxesCombined />,
+    href: '/profile/admin/charts',
   },
   {
-    title: 'Graficos',
-    href: '/profile/admin/charts',
+    title: 'Usuarios',
+    icon: <Users />,
+    href: '/profile/admin/users',
+  },
+
+  {
+    title: 'Productos',
+    icon: <PackageSearch />,
+    href: '/profile/admin/products',
   },
 ];
 
@@ -48,22 +63,46 @@ export default async function SettingsLayout({
   return (
     <>
       <div className='md:hidden p-4'>
-        <h2 className='text-2xl font-bold mb-4'>Configuración</h2>
-        <SidebarNav items={sidebarNavItems} />
-        {session.user.role == 'admin' && (
+        <div className='flex flex-row items-center gap-x-2'>
+          <Settings />
+          <h2 className='text-2xl font-bold mb-4'>Configuración</h2>
+        </div>
+
+        <div className='overflow-x-auto whitespace-nowrap scrollbar-hide'>
+          <SidebarNav items={sidebarNavItems} />
+        </div>
+
+        {(session.user.role === 'admin' ||
+          session.user.role === 'supervisor') && (
           <>
-            <SidebarNav items={sideBarNavItemsAdmin} />
+            <div className='flex items-center justify-center gap-x-3'>
+              <Crown
+                className='text-yellow-500'
+                fill='currentColor'
+                stroke='black'
+              />
+              <span className='font-medium'>Admin Panel</span>
+            </div>
+
+            <div className='overflow-x-auto whitespace-nowrap scrollbar-hide'>
+              <SidebarNav items={sideBarNavItemsAdmin} />
+            </div>
           </>
         )}
+
         <div className='mt-6'>{children}</div>
       </div>
+
       <div className='hidden md:flex min-h-screen w-full justify-center'>
         <div className='w-full max-w-7xl px-4 py-10'>
           <div className='space-y-6'>
             <div className='space-y-0.5'>
-              <h2 className='text-2xl font-bold tracking-tight'>
-                Configuración
-              </h2>
+              <div className='flex flex-row items-center gap-x-2'>
+                <Settings />
+                <h2 className='text-2xl font-bold tracking-tight'>
+                  Configuración
+                </h2>
+              </div>
               <p className='text-muted-foreground'>
                 Administra la configuración de tu cuenta y establece
                 preferencias
@@ -79,7 +118,18 @@ export default async function SettingsLayout({
                   session.user.role === 'supervisor') && (
                   <>
                     <Separator className='my-6' />
-                    <SidebarNav items={sideBarNavItemsAdmin} />
+                    <div className='flex md:flex-row lg:flex-col gap-x-3'>
+                      <div className='flex items-center justify-center gap-x-3 lg:mb-3'>
+                        <Crown
+                          className='text-yellow-500'
+                          fill='currentColor'
+                          stroke='black'
+                        />
+                        <span className='font-medium'>Admin Panel</span>
+                      </div>
+
+                      <SidebarNav items={sideBarNavItemsAdmin} />
+                    </div>
                   </>
                 )}
               </aside>

@@ -1,7 +1,11 @@
-export const revalidate = 60; /// 60 Segundos
+export const revalidate = 60;
 
 import { getPaginatedProductsWithImages } from '@/actions';
-import { PaginationNav, ProductGrid } from '@/components';
+import {
+  BreadcrumbWithCustomSeparator,
+  PaginationNav,
+  ProductGrid,
+} from '@/components';
 
 import { redirect } from 'next/navigation';
 
@@ -13,19 +17,30 @@ export default async function Home({ searchParams }: Props) {
   const page = (await searchParams).page
     ? Number((await searchParams).page)
     : 1;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { products, currentPage, totalPages } =
-    await getPaginatedProductsWithImages({ page });
 
-  //console.log({ currentPage, totalPages });
+  const { products, totalPages } = await getPaginatedProductsWithImages({
+    page,
+  });
+
   if (products.length === 0) {
     redirect('/');
   }
 
   return (
     <>
-      <ProductGrid products={products} />
-      <PaginationNav totalPages={totalPages} />
+      <div className='max-w-6xl mx-auto p-6 '>
+        <div className='mb-2'>
+          <BreadcrumbWithCustomSeparator
+            items={[
+              { label: 'Productos', href: '/products' },
+              { label: '', href: '/' },
+            ]}
+          />
+        </div>
+
+        <ProductGrid products={products} />
+        <PaginationNav totalPages={totalPages} />
+      </div>
     </>
   );
 }

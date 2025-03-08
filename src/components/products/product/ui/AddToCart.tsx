@@ -1,24 +1,41 @@
 'use client';
 
-import { CartProduct, Product, Size } from '@/interfaces';
+import { CartProduct, ProductWithImages, Size } from '@/interfaces';
 import { useCartStore } from '@/store';
 import { useState } from 'react';
 import { SizeSelector } from './SizeSelector';
 import { QuantitySelector } from './QuantitySelector';
-import { Button } from '@/components';
+import { Alert, AlertTitle, Button } from '@/components';
+import { AlertCircle } from 'lucide-react';
+import { ColorSelector } from './ColorSelector';
 interface Props {
-  product: Product;
+  product: ProductWithImages;
 }
 
 export const AddToCart = ({ product }: Props) => {
-  //const addProductToCart = useCartStore((state) => state.addProductToCart);
+  const addProductToCart = useCartStore((state) => state.addProductToCart);
   const [size, setSize] = useState<Size | undefined>();
+  const [color, setColor] = useState<string | undefined>();
   const [quantity, setQuantity] = useState<number>(1);
   const [posted, setPosted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const addToCart = () => {
     setPosted(true);
-    if (!size) return;
-    //console.log(size, quantity);
+    if (!size && !color) {
+      setErrorMessage('Seleccione una talla y un color');
+      return;
+    }
+
+    if (!size) {
+      setErrorMessage('Seleccione una talla');
+      return;
+    }
+
+    if (!color) {
+      setErrorMessage('Seleccione un color');
+      return;
+    }
+
     const cartProduct: CartProduct = {
       id: product.id,
       slug: product.slug,
@@ -26,48 +43,49 @@ export const AddToCart = ({ product }: Props) => {
       price: product.price,
       quantity: quantity,
       size: size,
+      color: color,
+      colors: product.colors,
       image: product.images[0],
     };
-    //addProductToCart(cartProduct);
+    addProductToCart(cartProduct);
     setPosted(false);
     setQuantity(1);
     setSize(undefined);
+    setColor(undefined);
+    setErrorMessage('');
   };
+  const handleSizeChange = (size: Size) => {
+    setSize(size);
+    setErrorMessage('');
+  };
+
+  const handleColorChange = (color: string) => {
+    setColor(color);
+    setErrorMessage('');
+  };
+
   return (
     <>
-      {posted && !size && (
-        <span className='mt-2 text-red-500 fade-in'>
-          - Debe de seleccionar una talla
-        </span>
-      )}
-
-      {/* Fila superior: Color a la izquierda y Tallas a la derecha */}
-      <div className='flex justify-between mb-6'>
-        <div>
-          <h3 className='text-md font-semibold mb-2'>Color</h3>
-          <div className='flex gap-2'>
-            <button
-              className='w-8 h-8 rounded-full border'
-              style={{ backgroundColor: '#e2c9b3' }}
-            />
-            <button
-              className='w-8 h-8 rounded-full border border-gray-300'
-              style={{ backgroundColor: '#000000' }}
-              aria-label='Black color'
-            />
-            <button
-              className='w-8 h-8 rounded-full border border-gray-300'
-              style={{ backgroundColor: '#FFFFFF' }}
-              aria-label='White color'
-            />
-          </div>
+      {posted && errorMessage && (
+        <div className='mb-2'>
+          <Alert variant='destructive'>
+            <AlertCircle className='h-5 w-5' />
+            <AlertTitle>{errorMessage}</AlertTitle>
+          </Alert>
         </div>
+      )}
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+        <ColorSelector
+          selectedColor={color}
+          availableColors={product.colors}
+          onColorChanged={handleColorChange}
+        />
 
-        <div>
+        <div className='w-full'>
           <SizeSelector
             selectedSize={size}
             availableSizes={product.sizes}
-            onSizeChanged={setSize}
+            onSizeChanged={handleSizeChange}
           />
         </div>
       </div>
