@@ -5,7 +5,6 @@ import { Input, Separator } from '@/components';
 import Link from 'next/link';
 import { useAddressStore, useCartStore, useFormStore } from '@/store';
 import { currencyFormat } from '@/utils';
-import { ProductImage } from '@/components/products/product-image/ProductImage';
 import { QuantitySelector } from '@/components/products/product/ui/QuantitySelector';
 import Image from 'next/image';
 import { ShoppingBasket } from 'lucide-react';
@@ -26,6 +25,7 @@ export const CartSummary = ({ className }: { className?: string }) => {
   );
 
   const { submitForm, isFormValid } = useFormStore();
+
   const address = useAddressStore((state) => state.address);
 
   const handleConfirm = async () => {
@@ -81,10 +81,10 @@ export const CartSummary = ({ className }: { className?: string }) => {
                     className='hover:underline cursor-pointer'
                     href={`/product/${product.slug}`}
                   >
-                    <ProductImage
+                    <Image
                       src={product.image}
-                      width={30}
-                      height={30}
+                      width={70}
+                      height={70}
                       alt={product.title}
                       className='mr-5 rounded'
                     />

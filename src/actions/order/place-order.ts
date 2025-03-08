@@ -49,6 +49,35 @@ export const placeOrder = async (
 
   try {
     const prismaTx = await prisma.$transaction(async (tx) => {
+      const existingUnpaidOrder = await tx.order.findFirst({
+        where: {
+          userId: userId,
+          isPaid: false,
+        },
+        include: {
+          OrderItem: true,
+        },
+      });
+
+      if (existingUnpaidOrder) {
+        const restoreStockPromises = existingUnpaidOrder.OrderItem.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data: { inStock: { increment: item.quantity } },
+          })
+        );
+
+        await Promise.all(restoreStockPromises);
+        await tx.orderAddress.deleteMany({
+          where: { orderId: existingUnpaidOrder.id },
+        });
+        await tx.orderItem.deleteMany({
+          where: { orderId: existingUnpaidOrder.id },
+        });
+        await tx.order.delete({
+          where: { id: existingUnpaidOrder.id },
+        });
+      }
       const updatedProductsPromises = products.map((product) => {
         const productQuantity = productIds
           .filter((p) => p.productId === product.id)

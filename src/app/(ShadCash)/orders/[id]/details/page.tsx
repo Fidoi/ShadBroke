@@ -3,6 +3,7 @@ import { ClientPaymentButton, OrderStatus } from '@/components';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import { currencyFormat } from '@/utils';
+import Link from 'next/link';
 
 interface OrdersDetailsProps {
   params: Promise<{
@@ -31,14 +32,18 @@ export default async function OrdersDetails({ params }: OrdersDetailsProps) {
                 key={item.product.slug + '-' + item.size}
                 className='flex mb-5'
               >
-                <Image
-                  src={`${item.product.ProductImage[0].url}`}
-                  width={100}
-                  height={100}
-                  style={{ width: '100px', height: '100' }}
-                  alt={item.product.title}
-                  className='mr-5 rounded'
-                />
+                <Link
+                  className='hover:underline cursor-pointer'
+                  href={`/product/${item.product.slug}`}
+                >
+                  <Image
+                    src={`${item.product.ProductImage[0].url}`}
+                    width={100}
+                    height={100}
+                    alt={item.product.title}
+                    className='mr-5 rounded'
+                  />
+                </Link>
                 <div className=''>
                   <p>{item.product.title}</p>
                   <p>
