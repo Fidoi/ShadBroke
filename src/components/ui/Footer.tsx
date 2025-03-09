@@ -88,7 +88,6 @@ export const Footer = () => {
                   alt='Twitter'
                   width={24}
                   height={24}
-                  className='invert'
                 />
                 Twitter
               </span>
@@ -99,7 +98,6 @@ export const Footer = () => {
                   alt='Twitter'
                   width={24}
                   height={24}
-                  className='invert'
                 />
                 Instagram
               </span>
@@ -110,7 +108,6 @@ export const Footer = () => {
                   alt='Twitter'
                   width={24}
                   height={24}
-                  className='invert'
                 />
                 Facebook
               </span>
