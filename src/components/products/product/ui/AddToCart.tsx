@@ -21,6 +21,12 @@ export const AddToCart = ({ product }: Props) => {
   const [errorMessage, setErrorMessage] = useState('');
   const addToCart = () => {
     setPosted(true);
+    setErrorMessage('');
+    if (product.inStock <= 0) {
+      setErrorMessage('No hay stock disponible');
+      return;
+    }
+
     if (!size && !color) {
       setErrorMessage('Seleccione una talla y un color');
       return;

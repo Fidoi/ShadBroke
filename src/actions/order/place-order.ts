@@ -98,7 +98,9 @@ export const placeOrder = async (
 
       updatedProducts.forEach((product) => {
         if (product.inStock < 0) {
-          throw new Error(`${product.title} no tiene inventario suficiente`);
+          throw new Error(
+            `"${product.title}" no tiene inventario suficiente. `
+          );
         }
       });
       const generatedOrderId =

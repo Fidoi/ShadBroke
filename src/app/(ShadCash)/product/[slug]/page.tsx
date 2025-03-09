@@ -14,6 +14,7 @@ import {
   ShareModal,
   StockLabel,
 } from '@/components';
+import { Badge } from '@/components/ui/badge';
 import { currencyFormat, genderTranslations } from '@/utils';
 import { Pencil } from 'lucide-react';
 import { Metadata, ResolvingMetadata } from 'next';
@@ -69,7 +70,8 @@ export default async function ProductBySlugPage({ params }: Props) {
               { label: product.title },
             ]}
           />
-          {session?.user.role !== 'user' && (
+          {(session?.user.role === 'admin' ||
+            session?.user.role === 'supervisor') && (
             <Link href={`/profile/admin/products/${product.slug}`}>
               <Button variant='outline'>
                 <Pencil />
@@ -93,7 +95,13 @@ export default async function ProductBySlugPage({ params }: Props) {
                 <h1 className='text-3xl font-bold mb-2 text-primary'>
                   {product.title}
                 </h1>
-                <StockLabel slug={product.slug} />
+                {Number(product.inStock) > 0 ? (
+                  <StockLabel slug={product.slug} />
+                ) : (
+                  <Badge variant='destructive' className='text-sm px-4 py-2'>
+                    Stock: Agotado
+                  </Badge>
+                )}
               </div>
 
               <div className='flex gap-x-2'>
@@ -114,22 +122,28 @@ export default async function ProductBySlugPage({ params }: Props) {
                 />
               </div>
             </div>
-            {product.discount && product.discount > 0 ? (
+            {Number(product.inStock) > 0 && (
               <>
-                <div className='flex gap-x-3 '>
-                  <span className='text-sm line-through text-gray-500'>
+                {product.discount && product.discount > 0 ? (
+                  <>
+                    <div className='flex gap-x-3 '>
+                      <span className='text-sm line-through text-gray-500'>
+                        {currencyFormat(product.price)}
+                      </span>
+                      <DiscountBadge discount={product.discount} text='% off' />
+                    </div>
+                    <p className='text-xl font-semibold text-gray-700 '>
+                      {currencyFormat(
+                        product.price * (1 - product.discount / 100)
+                      )}
+                    </p>
+                  </>
+                ) : (
+                  <p className='text-xl font-semibold text-gray-700 '>
                     {currencyFormat(product.price)}
-                  </span>
-                  <DiscountBadge discount={product.discount} text='% off' />
-                </div>
-                <p className='text-xl font-semibold text-gray-700 '>
-                  {currencyFormat(product.price * (1 - product.discount / 100))}
-                </p>
+                  </p>
+                )}
               </>
-            ) : (
-              <p className='text-xl font-semibold text-gray-700 '>
-                {currencyFormat(product.price)}
-              </p>
             )}
 
             <p className='text-base text-gray-900 mb-6 mt-3'>

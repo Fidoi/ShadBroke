@@ -1,18 +1,20 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input, Separator } from '@/components';
+import { Alert, AlertTitle, Input, Separator } from '@/components';
 import Link from 'next/link';
 import { useAddressStore, useCartStore, useFormStore } from '@/store';
 import { currencyFormat } from '@/utils';
 import { QuantitySelector } from '@/components/products/product/ui/QuantitySelector';
 import Image from 'next/image';
-import { ShoppingBasket } from 'lucide-react';
+import { AlertCircle, ShoppingBasket } from 'lucide-react';
 
 import { toast } from '@/hooks/use-toast';
 import { handleWebPayPayment, placeOrder } from '@/actions';
+import { useState } from 'react';
 
 export const CartSummary = ({ className }: { className?: string }) => {
+  const [stockError, setStockError] = useState<string | null>(null);
   const productsInCart = useCartStore((state) => state.cart);
   const subTotal = useCartStore((state) =>
     state.cart.reduce(
@@ -29,26 +31,44 @@ export const CartSummary = ({ className }: { className?: string }) => {
   const address = useAddressStore((state) => state.address);
 
   const handleConfirm = async () => {
-    if (submitForm && isFormValid) {
-      submitForm();
-    }
-    if (address) {
+    setStockError(null);
+    try {
+      if (submitForm && isFormValid) {
+        submitForm();
+      }
+
+      if (!address) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Completa el formulario de dirección primero',
+        });
+        return;
+      }
+
       const productsToOrder = productsInCart.map((product) => ({
         productId: product.id,
         quantity: product.quantity,
         size: product.size,
       }));
+
       const resp = await placeOrder(productsToOrder, address);
-      if (!resp || !resp.ok) {
-        return;
+
+      if (!resp) {
+        throw new Error('No se pudo procesar la orden');
       }
+
+      if (!resp.ok) {
+        throw new Error(resp.message || 'Error al procesar la compra');
+      }
+
       await handleWebPayPayment(resp.order!.total, resp.order!.id);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Whoops!',
-        description: 'Completa el formulario de dirección primero',
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        const productMatch = error.message.match(/"(.*?)"/);
+        const productName = productMatch ? productMatch[1] : 'Producto';
+        setStockError(productName);
+      }
     }
   };
 
@@ -104,6 +124,14 @@ export const CartSummary = ({ className }: { className?: string }) => {
                 <span>{currencyFormat(product.price * product.quantity)}</span>
               </div>
             </div>
+            {stockError === product.title && (
+              <Alert variant='destructive' className='mt-2'>
+                <AlertCircle className='h-4 w-4' />
+                <AlertTitle className='ml-2'>
+                  {product.title} - sin Stock
+                </AlertTitle>
+              </Alert>
+            )}
           </div>
         ))}
         <div className='space-y-2'>

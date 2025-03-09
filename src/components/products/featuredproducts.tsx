@@ -14,7 +14,7 @@ interface Props {
 
 export const FeaturedProducts = ({ products }: Props) => {
   return (
-    <div className='flex items-center justify-center'>
+    <div className='flex items-center justify-center my-6'>
       <section className='max-w-7xl w-full'>
         <h1 className='flex text-3xl font-bold mb-4 text-primary items-center justify-center'>
           Productos en oferta
