@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 
 export const getAllPaidOrders = async () => {
   const session = await auth();
-  if (session?.user.role === 'user') {
+  if (!session || session.user.role === 'user') {
     return {
       ok: false,
       message: 'No tienes los permisos para ver',
