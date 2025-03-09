@@ -14,6 +14,7 @@ interface Props {
 
 export const AddToCart = ({ product }: Props) => {
   const addProductToCart = useCartStore((state) => state.addProductToCart);
+  const cart = useCartStore((state) => state.cart);
   const [size, setSize] = useState<Size | undefined>();
   const [color, setColor] = useState<string | undefined>();
   const [quantity, setQuantity] = useState<number>(1);
@@ -22,6 +23,16 @@ export const AddToCart = ({ product }: Props) => {
   const addToCart = () => {
     setPosted(true);
     setErrorMessage('');
+    const existingCartItem = cart.find(
+      (item) =>
+        item.id === product.id && item.size === size && item.color === color
+    );
+    const totalQuantity = (existingCartItem?.quantity || 0) + quantity;
+
+    if (totalQuantity > product.inStock) {
+      setErrorMessage(`No hay suficiente stock`);
+      return;
+    }
     if (product.inStock <= 0) {
       setErrorMessage('No hay stock disponible');
       return;
