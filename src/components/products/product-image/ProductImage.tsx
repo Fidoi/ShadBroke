@@ -3,8 +3,7 @@ import Image from 'next/image';
 interface Props {
   src?: string;
   alt: string;
-  className?: React.StyleHTMLAttributes<HTMLImageElement>['className'];
-  style?: React.StyleHTMLAttributes<HTMLImageElement>['style'];
+  className?: string;
   width: number;
   height: number;
   onMouseEnter?: () => void;
@@ -16,7 +15,6 @@ export const ProductImage = ({
   src,
   alt,
   className,
-  style,
   width,
   height,
   onMouseEnter,
@@ -29,14 +27,13 @@ export const ProductImage = ({
     : '/imgs/placeholder.jpg';
 
   return (
-    <div className='overflow-hidden w-full h-full'>
+    <div className='overflow-hidden'>
       <Image
         src={localSrc}
         width={width}
         height={height}
         alt={alt}
-        className={`object-cover w-full h-full ${className}`}
-        style={style}
+        className={`object-cover${className}`}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       />

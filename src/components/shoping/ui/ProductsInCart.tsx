@@ -25,49 +25,54 @@ export const ProductsInCart = () => {
 
   if (!loaded) {
     return (
-      <>
-        <Loader2 className='animate-spin' />
-        Porfavor espere
-      </>
+      <div className='flex justify-center items-center gap-2 h-20 text-muted-foreground'>
+        <Loader2 className='animate-spin h-6 w-6' />
+        <span>Por favor espere</span>
+      </div>
     );
   }
+
   return (
-    <div className='mt-6'>
+    <div className='mt-6 space-y-6'>
       {productsInCart.map((product) => (
         <div
           key={`${product.slug}-${product.size}-${product.color}`}
-          className='flex mb-5'
+          className='grid grid-cols-[100px_1fr] gap-4 items-start'
         >
           <Link
-            className='hover:underline cursor-pointer'
             href={`/product/${product.slug}`}
+            className=' bg-muted rounded-lg overflow-hidden'
           >
             <ProductImage
               src={product.image}
-              width={100}
-              height={100}
-              style={{ width: '100px', height: '100' }}
+              width={400}
+              height={400}
               alt={product.title}
-              className='mr-5 rounded'
             />
           </Link>
-          <div>
-            <div className='flex items-center justify-between w-full'>
-              <div>
+
+          <div className='space-y-2'>
+            <div className='flex justify-between gap-2'>
+              <div className='space-y-1 flex-1'>
                 <Link
-                  className='hover:underline cursor-pointer'
                   href={`/product/${product.slug}`}
+                  className='text-sm font-medium hover:underline line-clamp-2'
                 >
-                  {product.size} - {product.title}
+                  {product.title}
                 </Link>
-                <p>{currencyFormat(product.price)}</p>
+                <p className='text-xs text-muted-foreground'>{product.size}</p>
+                <p className='text-sm font-semibold'>
+                  {currencyFormat(product.price)}
+                </p>
               </div>
+
               <Button
                 onClick={() => removeProduct(product)}
+                variant='outline'
+                className='h-8 w-8'
                 aria-label='Remover producto'
-                variant='ghost'
               >
-                <Trash2 className='h-6 w-6 text-red-500' />
+                <Trash2 className='h-4 w-4 text-red-500' />
               </Button>
             </div>
 
@@ -77,7 +82,8 @@ export const ProductsInCart = () => {
               onColorChanged={(color) => updateColor(product, color)}
               isSummary
             />
-            <div className='mt-8'>
+
+            <div className='pt-2'>
               <QuantitySelector
                 quantity={product.quantity}
                 onQuantityChanged={(quantity) =>

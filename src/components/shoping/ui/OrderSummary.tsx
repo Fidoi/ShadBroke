@@ -25,7 +25,7 @@ export const OrderSummary = () => {
 
   if (!loaded) return <p>Cargando</p>;
   return (
-    <>
+    <div className='mt-3'>
       {totalItemsInCart > 0 ? (
         <div className='border-t border-gray-200 px-4 py-6 sm:px-6'>
           <div className='flex justify-between text-base font-medium text-gray-900'>
@@ -60,6 +60,6 @@ export const OrderSummary = () => {
           </Card>
         </div>
       )}
-    </>
+    </div>
   );
 };
