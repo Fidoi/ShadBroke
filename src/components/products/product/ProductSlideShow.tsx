@@ -59,7 +59,7 @@ export const ProductSlideshow = ({ images, title, className }: Props) => {
           swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
         }}
         modules={[FreeMode, Navigation, Thumbs, Autoplay]}
-        className='flex-1 w-full h-[680px]'
+        className='flex-1 w-full '
       >
         {images.map((image) => (
           <SwiperSlide key={image}>

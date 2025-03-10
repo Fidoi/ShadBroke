@@ -98,11 +98,20 @@ export default function MobileMenu({
         slidesPerView={1}
         onSwiper={(swiper) => (swiperRef.current = swiper)}
         autoHeight={true}
+        observer={true}
+        observeParents={true}
         className='h-auto'
       >
         <SwiperSlide>
           <div className='p-6 space-y-6'>
-            <Collapsible>
+            <Collapsible
+              onOpenChange={() => {
+                if (swiperRef.current) {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (swiperRef.current as any).updateAutoHeight();
+                }
+              }}
+            >
               <CollapsibleTrigger className='w-full flex justify-between items-center'>
                 <span className='text-lg font-medium'>Género</span>
                 <ChevronDown className='h-5 w-5' />
@@ -152,7 +161,14 @@ export default function MobileMenu({
                 </MobileMenuItem>
               </CollapsibleContent>
             </Collapsible>
-            <Collapsible>
+            <Collapsible
+              onOpenChange={() => {
+                if (swiperRef.current) {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (swiperRef.current as any).updateAutoHeight();
+                }
+              }}
+            >
               <CollapsibleTrigger className='w-full flex justify-between items-center'>
                 <span className='text-lg font-medium'>Categorías</span>
                 <ChevronDown className='h-5 w-5' />

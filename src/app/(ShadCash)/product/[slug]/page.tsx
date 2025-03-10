@@ -81,11 +81,11 @@ export default async function ProductBySlugPage({ params }: Props) {
           )}
         </div>
         <div className='max-w-6xl mx-auto pb-6 grid grid-cols-1 md:grid-cols-2 gap-8'>
-          <Card className='w-full h-[680px] flex items-center justify-center overflow-hidden'>
+          <Card className='w-full flex items-center justify-center overflow-hidden'>
             <ProductSlideshow
               title={product.title}
               images={product.images}
-              className='w-full h-full'
+              className='w-full'
             />
           </Card>
 
