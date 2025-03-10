@@ -14,8 +14,8 @@ interface Props {
 
 export const FeaturedProducts = ({ products }: Props) => {
   return (
-    <div className='flex items-center justify-center my-6'>
-      <section className='max-w-7xl w-full'>
+    <div className='flex items-center justify-center my-6 w-full'>
+      <section className='max-w-7xl w-full relative'>
         <h1 className='flex text-3xl font-bold mb-4 text-primary items-center justify-center'>
           Productos en oferta
         </h1>
@@ -28,7 +28,7 @@ export const FeaturedProducts = ({ products }: Props) => {
           }}
           className='w-full'
         >
-          <CarouselContent className='flex gap-x-9'>
+          <CarouselContent className='flex gap-x-5'>
             {products.map((product) => (
               <CarouselItem
                 key={product.slug}
@@ -39,8 +39,8 @@ export const FeaturedProducts = ({ products }: Props) => {
             ))}
           </CarouselContent>
 
-          <CarouselPrevious className='hidden md:flex' />
-          <CarouselNext className='hidden md:flex' />
+          <CarouselPrevious className='hidden md:flex absolute left-2 top-1/2 transform -translate-y-1/2' />
+          <CarouselNext className='hidden md:flex absolute right-2 top-1/2 transform -translate-y-1/2' />
         </Carousel>
       </section>
     </div>

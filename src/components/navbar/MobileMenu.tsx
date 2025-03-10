@@ -11,7 +11,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Button } from '../ui/button';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, Menu, Shirt, Tag, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 const components = [
@@ -78,9 +78,11 @@ export default function MobileMenu({
         isOpen ? 'translate-x-0' : '-translate-x-full'
       } transition-transform duration-300 ease-in-out overflow-y-auto`}
     >
-      <div className='sticky top-0 bg-white z-10 border-b'>
+      <div className='fixed top-0 left-0 right-0 bg-white z-10 border-b'>
         <div className='flex justify-between items-center p-4'>
-          <h2 className='text-xl font-bold'>Menú</h2>
+          <h2 className='text-xl font-bold flex'>
+            <Menu /> Menú
+          </h2>
           <Button
             variant='ghost'
             size='icon'
@@ -91,104 +93,111 @@ export default function MobileMenu({
           </Button>
         </div>
       </div>
+      <div className='pt-16'>
+        <Swiper
+          modules={[Navigation, FreeMode]}
+          spaceBetween={20}
+          slidesPerView={1}
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          autoHeight={true}
+          observer={true}
+          observeParents={true}
+          className='h-auto'
+        >
+          <SwiperSlide>
+            <div className='p-6 space-y-6'>
+              <Collapsible
+                onOpenChange={() => {
+                  if (swiperRef.current) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (swiperRef.current as any).updateAutoHeight();
+                  }
+                }}
+              >
+                <CollapsibleTrigger className='w-full flex justify-between items-center'>
+                  <span className='flex gap-x2 text-lg font-medium'>
+                    <Shirt className='w-6 h-6' />
+                    Género
+                  </span>
+                  <ChevronDown className='h-5 w-5' />
+                </CollapsibleTrigger>
+                <CollapsibleContent className='mt-4 space-y-4'>
+                  <Link
+                    href='/products'
+                    className='relative block h-40 w-full rounded-md overflow-hidden'
+                    onClick={onClose}
+                  >
+                    <Image
+                      src='https://images.pexels.com/photos/1884579/pexels-photo-1884579.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+                      alt='Ver todo'
+                      fill
+                      className='object-cover'
+                    />
+                    <div className='absolute inset-0 bg-black/40 p-4 flex flex-col justify-end text-white'>
+                      <h3 className='text-lg font-medium'>Ver todo</h3>
+                      <p className='text-sm'>
+                        Revisa toda la ropa de última moda
+                      </p>
+                    </div>
+                  </Link>
 
-      <Swiper
-        modules={[Navigation, FreeMode]}
-        spaceBetween={20}
-        slidesPerView={1}
-        onSwiper={(swiper) => (swiperRef.current = swiper)}
-        autoHeight={true}
-        observer={true}
-        observeParents={true}
-        className='h-auto'
-      >
-        <SwiperSlide>
-          <div className='p-6 space-y-6'>
-            <Collapsible
-              onOpenChange={() => {
-                if (swiperRef.current) {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (swiperRef.current as any).updateAutoHeight();
-                }
-              }}
-            >
-              <CollapsibleTrigger className='w-full flex justify-between items-center'>
-                <span className='text-lg font-medium'>Género</span>
-                <ChevronDown className='h-5 w-5' />
-              </CollapsibleTrigger>
-              <CollapsibleContent className='mt-4 space-y-4'>
-                <Link
-                  href='/products'
-                  className='relative block h-40 w-full rounded-md overflow-hidden'
-                  onClick={onClose}
-                >
-                  <Image
-                    src='https://images.pexels.com/photos/1884579/pexels-photo-1884579.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-                    alt='Ver todo'
-                    fill
-                    className='object-cover'
-                  />
-                  <div className='absolute inset-0 bg-black/40 p-4 flex flex-col justify-end text-white'>
-                    <h3 className='text-lg font-medium'>Ver todo</h3>
-                    <p className='text-sm'>
-                      Revisa toda la ropa de última moda
-                    </p>
-                  </div>
-                </Link>
-
-                <MobileMenuItem
-                  href='/gender/men'
-                  title='Hombres 👨🏻'
-                  onClose={onClose}
-                >
-                  Descubre nuestra exclusiva colección de moda masculina
-                </MobileMenuItem>
-
-                <MobileMenuItem
-                  href='/gender/women'
-                  title='Mujeres 👩🏻‍🦰'
-                  onClose={onClose}
-                >
-                  Explora las últimas tendencias en moda femenina
-                </MobileMenuItem>
-
-                <MobileMenuItem
-                  href='/gender/kid'
-                  title='Niños 👦🏻'
-                  onClose={onClose}
-                >
-                  Encuentra ropa cómoda y moderna para los más pequeños
-                </MobileMenuItem>
-              </CollapsibleContent>
-            </Collapsible>
-            <Collapsible
-              onOpenChange={() => {
-                if (swiperRef.current) {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  (swiperRef.current as any).updateAutoHeight();
-                }
-              }}
-            >
-              <CollapsibleTrigger className='w-full flex justify-between items-center'>
-                <span className='text-lg font-medium'>Categorías</span>
-                <ChevronDown className='h-5 w-5' />
-              </CollapsibleTrigger>
-              <CollapsibleContent className='mt-4 space-y-4'>
-                {components.map((item) => (
                   <MobileMenuItem
-                    key={item.title}
-                    href={item.href}
-                    title={item.title}
+                    href='/gender/men'
+                    title='Hombres 👨🏻'
                     onClose={onClose}
                   >
-                    {item.description}
+                    Descubre nuestra exclusiva colección de moda masculina
                   </MobileMenuItem>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </SwiperSlide>
-      </Swiper>
+
+                  <MobileMenuItem
+                    href='/gender/women'
+                    title='Mujeres 👩🏻‍🦰'
+                    onClose={onClose}
+                  >
+                    Explora las últimas tendencias en moda femenina
+                  </MobileMenuItem>
+
+                  <MobileMenuItem
+                    href='/gender/kid'
+                    title='Niños 👦🏻'
+                    onClose={onClose}
+                  >
+                    Encuentra ropa cómoda y moderna para los más pequeños
+                  </MobileMenuItem>
+                </CollapsibleContent>
+              </Collapsible>
+              <Collapsible
+                onOpenChange={() => {
+                  if (swiperRef.current) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (swiperRef.current as any).updateAutoHeight();
+                  }
+                }}
+              >
+                <CollapsibleTrigger className='w-full flex justify-between items-center'>
+                  <span className='flex text-lg font-medium'>
+                    <Tag className='w-6 h-6' />
+                    Categorías
+                  </span>
+                  <ChevronDown className='h-5 w-5' />
+                </CollapsibleTrigger>
+                <CollapsibleContent className='mt-4 space-y-4'>
+                  {components.map((item) => (
+                    <MobileMenuItem
+                      key={item.title}
+                      href={item.href}
+                      title={item.title}
+                      onClose={onClose}
+                    >
+                      {item.description}
+                    </MobileMenuItem>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </SwiperSlide>
+        </Swiper>
+      </div>
     </div>
   );
 }
