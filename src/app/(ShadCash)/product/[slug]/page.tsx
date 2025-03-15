@@ -119,6 +119,7 @@ export default async function ProductBySlugPage({ params }: Props) {
                       ? product.price * (1 - product.discount / 100)
                       : product.price
                   }
+                  slug={slug}
                 />
               </div>
             </div>

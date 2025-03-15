@@ -20,6 +20,7 @@ interface ShareModalProps {
   description?: string;
   imageUrl: string;
   price: number;
+  slug: string;
 }
 
 export const ShareModal = ({
@@ -27,9 +28,13 @@ export const ShareModal = ({
   description = '',
   imageUrl,
   price,
+  slug,
 }: ShareModalProps) => {
   const { toast } = useToast();
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const currentUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/product/${slug}`
+      : '';
 
   const truncate = (text: string, maxLength: number) =>
     text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
